@@ -4,14 +4,27 @@ window.addEventListener('DOMContentLoaded', () => {
     ws = new WebSocket(`ws://localhost:3000/ws`)
     ws.addEventListener('open', onConnectionOpen)
     ws.addEventListener('message', onMessageReceived)
-
-    const queryParams = getQueryParams()
-    console.log(queryParams)
 })
 
-const onConnectionOpen = () => console.log('connection opened!')
+const onConnectionOpen = () => {
+    const queryParams = getQueryParams()
 
-const onMessageReceived = (event) => console.log('message received!', event)
+    if (!queryParams.group || !queryParams.name) {
+        window.location.href = 'chat.html'
+        return
+    }
+
+    const event = {
+        event: 'join',
+        groupName: queryParams.group,
+        name: queryParams.name
+    }
+    ws.send(JSON.stringify(event))
+}
+
+const onMessageReceived = (event) => {
+    // 
+}
 
 const getQueryParams = () => {
     const search = window.location.search.substring(1)
