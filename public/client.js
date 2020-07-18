@@ -23,7 +23,7 @@ const onConnectionOpen = () => {
 }
 
 const onMessageReceived = (event) => {
-    // 
+    console.log('Message Received', event)
 }
 
 const getQueryParams = () => {
