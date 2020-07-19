@@ -12,7 +12,7 @@ const userMap = new Map()
 const groupMap = new Map()
 
 const chat = async (ws: any) => {
-    const userId = v4.generate
+    const userId = v4.generate()
 
     for await (let data of ws) {
         const event = typeof data === 'string' ? JSON.parse(data) : data
@@ -58,7 +58,7 @@ const getDisplayUsers = (groupName: string) => {
 
     return users.map((u: any) => {
         return {
-            userId: u.usersId, 
+            userId: u.userId, 
             name: u.name
         }
     })
