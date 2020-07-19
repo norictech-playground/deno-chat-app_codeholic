@@ -1,6 +1,7 @@
 let ws;
 
 const chatUserContainer = document.querySelector('#chatUsers')
+const chatUserCount = document.querySelector('#chatUsersCount')
 
 window.addEventListener('DOMContentLoaded', () => {
     ws = new WebSocket(`ws://localhost:3000/ws`)
@@ -30,6 +31,7 @@ const onMessageReceived = (event) => {
     
     switch (event.event) {
         case 'users':
+                chatUserCount.innerHTML = event.data.length
                 chatUserContainer.innerHTML = ''
                 event.data.forEach(u => {
                     const userEl = document.createElement('div')
