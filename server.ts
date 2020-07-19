@@ -1,6 +1,6 @@
 import { listenAndServe } from 'https://deno.land/std/http/server.ts'
 import { acceptWebSocket, acceptable } from 'https://deno.land/std/ws/mod.ts'
-import chat from './chat.js'
+import chat from './chat.ts'
 
 const port = 3000
 

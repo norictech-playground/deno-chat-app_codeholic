@@ -11,7 +11,7 @@ import { v4 } from 'https://deno.land/std/uuid/mod.ts'
 const userMap = new Map()
 const groupMap = new Map()
 
-const chat = async (ws) => {
+const chat = async (ws: any) => {
     const userId = v4.generate
 
     for await (let data of ws) {
@@ -41,7 +41,7 @@ const chat = async (ws) => {
 }
 
 // emit event when user joined the chat
-const emitEvent = (groupName) => {
+const emitEvent = (groupName: string) => {
     const users = groupMap.get(groupName) || []
 
     for (const user of users) {
@@ -53,10 +53,10 @@ const emitEvent = (groupName) => {
     }
 }
 
-const getDisplayUsers = (groupName) => {
+const getDisplayUsers = (groupName: string) => {
     const users = groupMap.get(groupName) || []
 
-    return users.map(u => {
+    return users.map((u: any) => {
         return {
             userId: u.usersId, 
             name: u.name
