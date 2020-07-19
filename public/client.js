@@ -1,13 +1,30 @@
 let ws;
 
+// participant related
 const chatUserContainer = document.querySelector('#chatUsers')
 const chatUserCount = document.querySelector('#chatUsersCount')
+
+// message related
+const messageForm = document.querySelector('#messageForm')
+const messageInput = document.querySelector('#messageInput')
+const chatArea = document.querySelector('#chatArea')
 
 window.addEventListener('DOMContentLoaded', () => {
     ws = new WebSocket(`ws://localhost:3000/ws`)
     ws.addEventListener('open', onConnectionOpen)
     ws.addEventListener('message', onMessageReceived)
 })
+
+messageForm.onsubmit = (e) => {
+    e.preventDefault()
+
+    const event = {
+        event: 'message',
+        data: messageInput.value
+    }
+    ws.send(JSON.stringify(event))
+    messageInput.value = ''
+}
 
 const onConnectionOpen = () => {
     const queryParams = getQueryParams()
@@ -27,7 +44,6 @@ const onConnectionOpen = () => {
 
 const onMessageReceived = (event) => {
     event = JSON.parse(event.data)
-    console.log(event.event)
     
     switch (event.event) {
         case 'users':
@@ -39,10 +55,20 @@ const onMessageReceived = (event) => {
                     userEl.innerHTML = u.name
                     chatUserContainer.append(userEl)
                 })
-            break;
+            break
+
+        case 'message':
+                const messageEl = document.createElement('div')
+                messageEl.className = `message ${event.data.sender ? 'message-to' : ''}`
+                messageEl.innerHTML = `
+                    ${event.data.sender ? '' : `<h4>${event.data.name}</h4>`}
+                    <p class="message-text">${event.data.message}</p>
+                `
+                chatArea.append(messageEl)
+            break
     
         default:
-            break;
+            break
     }
 }
 

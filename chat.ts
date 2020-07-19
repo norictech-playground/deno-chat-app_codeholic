@@ -13,26 +13,43 @@ import { v4 } from 'https://deno.land/std/uuid/mod.ts'
 const userMap = new Map()
 const groupMap = new Map()
 
+/**
+ * {
+ *      userId: string,
+ *      name: string,
+ *      message: string
+ * }
+ */
+interface Message {
+    userId: string,
+    name: string,
+    message: string,
+    sender: boolean
+}
+
+const messageMap: Message[] = []
+
 const chat = async (ws: any) => { // `ws` didapat dari sock di function acceptWebSocket
     const userId = v4.generate()
 
     for await (let data of ws) {
         const event = typeof data === 'string' ? JSON.parse(data) : data
+        let userObj;
 
         if (isWebSocketCloseEvent(event)) { // on user left/disconnected from the chat
-            const userObj = userMap.get(userId)
+            userObj = userMap.get(userId)
             let users = groupMap.get(userObj.groupName) || []
             users = users.filter((u: any) => u.userId !== userId)
             groupMap.set(userObj.groupName, users)
             userMap.delete(userId)
             
-            emitEvent(userObj.groupName) // emit to other participant
+            emitUsers(userObj.groupName) // emit to other participant
             break
         }
 
         switch (event.event) {
             case 'join':
-                    const userObj = {
+                    userObj = {
                         userId,
                         name: event.name,
                         groupName: event.groupName,
@@ -44,7 +61,19 @@ const chat = async (ws: any) => { // `ws` didapat dari sock di function acceptWe
                     users.push(userObj)
                     groupMap.set(event.groupName, users)
 
-                    emitEvent(event.groupName)
+                    emitUsers(event.groupName)
+                break
+
+            case 'message':
+                    userObj = userMap.get(userId)
+                    const message = {
+                        userId,
+                        name: userObj.name,
+                        message: event.data,
+                        sender: false
+                    }
+
+                    emitMessage(userObj.groupName, message)
                 break
         
             default:
@@ -54,7 +83,7 @@ const chat = async (ws: any) => { // `ws` didapat dari sock di function acceptWe
 }
 
 // emit event when user joined the chat
-const emitEvent = (groupName: string) => {
+const emitUsers = (groupName: string) => {
     const users = groupMap.get(groupName) || []
 
     for (const user of users) {
@@ -75,6 +104,19 @@ const getDisplayUsers = (groupName: string) => {
             name: u.name
         }
     })
+}
+
+const emitMessage = (groupName: string, message: Message) => {
+    const users = groupMap.get(groupName) || []
+
+    for (const user of users) {
+        message.sender = user.userId === message.userId
+        const event = {
+            event: 'message',
+            data: message
+        }
+        user.ws.send(JSON.stringify(event))
+    }
 }
 
 export default chat
