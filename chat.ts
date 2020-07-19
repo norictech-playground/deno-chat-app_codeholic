@@ -38,13 +38,7 @@ const chat = async (ws: any) => { // `ws` didapat dari sock di function acceptWe
         let userObj;
 
         if (isWebSocketCloseEvent(event)) { // on user left/disconnected from the chat
-            userObj = userMap.get(userId)
-            let users = groupMap.get(userObj.groupName) || []
-            users = users.filter((u: any) => u.userId !== userId)
-            groupMap.set(userObj.groupName, users)
-            userMap.delete(userId)
-            
-            emitUsers(userObj.groupName) // emit to other participant
+            leaveChat(userId)
             break
         }
 
@@ -135,6 +129,16 @@ const emitPreviousMessages = (groupName: string, userId: string, ws: WebSocket) 
         data: messages
     }
     ws.send(JSON.stringify(event))
+}
+
+const leaveChat = (userId: string) => {
+    const userObj = userMap.get(userId)
+    let users = groupMap.get(userObj.groupName) || []
+    users = users.filter((u: any) => u.userId !== userId)
+    groupMap.set(userObj.groupName, users)
+    userMap.delete(userId)
+    
+    emitUsers(userObj.groupName) // emit to other participant
 }
 
 export default chat

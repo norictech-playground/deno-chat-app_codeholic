@@ -9,6 +9,10 @@ const messageForm = document.querySelector('#messageForm')
 const messageInput = document.querySelector('#messageInput')
 const chatArea = document.querySelector('#chatArea')
 
+const leaveGroupBtn = document.querySelector('#leaveGroupBtn')
+
+const groupName = document.querySelector('#groupName')
+
 window.addEventListener('DOMContentLoaded', () => {
     ws = new WebSocket(`ws://localhost:3000/ws`)
     ws.addEventListener('open', onConnectionOpen)
@@ -18,12 +22,22 @@ window.addEventListener('DOMContentLoaded', () => {
 messageForm.onsubmit = (e) => {
     e.preventDefault()
 
+    if (!messageInput.value) return
+
     const event = {
         event: 'message',
         data: messageInput.value
     }
     ws.send(JSON.stringify(event))
     messageInput.value = ''
+}
+
+leaveGroupBtn.onclick = (e) => {
+    const event = {
+        event: 'leave',
+    }
+    ws.send(JSON.stringify(event))
+    window.location.href = 'chat.html'
 }
 
 const onConnectionOpen = () => {
@@ -33,6 +47,8 @@ const onConnectionOpen = () => {
         window.location.href = 'chat.html'
         return
     }
+
+    groupName.innerHTML = queryParams.group
 
     const event = {
         event: 'join',
