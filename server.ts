@@ -11,6 +11,6 @@ listenAndServe({ port }, req => {
             bufReader: req.r,
             bufWriter: req.w,
             headers: req.headers
-        }).then(chat)
+        }).then(chat) // lanjut di function chat membawa sock yang direturn oleh function acceptWebSocket
     }
 })
