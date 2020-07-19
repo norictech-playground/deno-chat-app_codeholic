@@ -66,6 +66,19 @@ const onMessageReceived = (event) => {
                 `
                 chatArea.append(messageEl)
             break
+
+        case 'previous-message':
+                chatArea.innerHTML = ''
+                event.data.forEach(msg => {
+                    const previousMessageEl = document.createElement('div')
+                    previousMessageEl.className = `message ${msg.sender ? 'message-to' : ''}`
+                    previousMessageEl.innerHTML = `
+                        ${msg.sender ? '' : `<h4>${msg.name}</h4>`}
+                        <p class="message-text">${msg.message}</p>
+                    `
+                    chatArea.append(previousMessageEl)
+                })
+            break
     
         default:
             break

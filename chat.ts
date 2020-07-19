@@ -1,4 +1,4 @@
-import { isWebSocketCloseEvent } from 'https://deno.land/std/ws/mod.ts'
+import { isWebSocketCloseEvent, WebSocket } from 'https://deno.land/std/ws/mod.ts'
 import { v4 } from 'https://deno.land/std/uuid/mod.ts'
 
 /**
@@ -23,6 +23,7 @@ const groupMap = new Map()
 interface Message {
     userId: string,
     name: string,
+    groupName: string,
     message: string,
     sender: boolean
 }
@@ -62,6 +63,7 @@ const chat = async (ws: any) => { // `ws` didapat dari sock di function acceptWe
                     groupMap.set(event.groupName, users)
 
                     emitUsers(event.groupName)
+                    emitPreviousMessages(event.groupName, userId, ws)
                 break
 
             case 'message':
@@ -69,9 +71,14 @@ const chat = async (ws: any) => { // `ws` didapat dari sock di function acceptWe
                     const message = {
                         userId,
                         name: userObj.name,
+                        groupName: userObj.groupName,
                         message: event.data,
                         sender: false
                     }
+
+                    let groupName = userObj.groupName
+                    const messages = messageMap.filter(msg => msg.groupName === groupName) || []
+                    messageMap.push(message)
 
                     emitMessage(userObj.groupName, message)
                 break
@@ -117,6 +124,19 @@ const emitMessage = (groupName: string, message: Message) => {
         }
         user.ws.send(JSON.stringify(event))
     }
+}
+
+const emitPreviousMessages = (groupName: string, userId: string, ws: WebSocket) => {
+    let messages = messageMap.filter((msg) => msg.groupName === groupName)
+    messages.map(msg => msg.sender = msg.userId === userId)
+    
+    const event = {
+        event: 'previous-message',
+        data: messages
+    }
+    console.clear()
+    console.log(event)
+    ws.send(JSON.stringify(event))
 }
 
 export default chat
