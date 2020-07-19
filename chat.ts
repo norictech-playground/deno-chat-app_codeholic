@@ -134,8 +134,6 @@ const emitPreviousMessages = (groupName: string, userId: string, ws: WebSocket) 
         event: 'previous-message',
         data: messages
     }
-    console.clear()
-    console.log(event)
     ws.send(JSON.stringify(event))
 }
 

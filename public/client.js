@@ -65,6 +65,8 @@ const onMessageReceived = (event) => {
                     <p class="message-text">${event.data.message}</p>
                 `
                 chatArea.append(messageEl)
+
+                scroll()
             break
 
         case 'previous-message':
@@ -78,6 +80,8 @@ const onMessageReceived = (event) => {
                     `
                     chatArea.append(previousMessageEl)
                 })
+                
+                scroll()
             break
     
         default:
@@ -97,3 +101,5 @@ const getQueryParams = () => {
 
     return params
 }
+
+const scroll = () => chatArea.scrollTo({ left: 0, top: document.body.scrollHeight });
