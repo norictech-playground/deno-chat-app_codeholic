@@ -19,14 +19,14 @@ const chat = async (ws: any) => { // `ws` didapat dari sock di function acceptWe
     for await (let data of ws) {
         const event = typeof data === 'string' ? JSON.parse(data) : data
 
-        if (isWebSocketCloseEvent(event)) {
+        if (isWebSocketCloseEvent(event)) { // on user left/disconnected from the chat
             const userObj = userMap.get(userId)
             let users = groupMap.get(userObj.groupName) || []
             users = users.filter((u: any) => u.userId !== userId)
             groupMap.set(userObj.groupName, users)
             userMap.delete(userId)
             
-            emitEvent(userObj.groupName)
+            emitEvent(userObj.groupName) // emit to other participant
             break
         }
 

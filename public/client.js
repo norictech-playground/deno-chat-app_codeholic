@@ -1,5 +1,7 @@
 let ws;
 
+const chatUserContainer = document.querySelector('#chatUsers')
+
 window.addEventListener('DOMContentLoaded', () => {
     ws = new WebSocket(`ws://localhost:3000/ws`)
     ws.addEventListener('open', onConnectionOpen)
@@ -23,8 +25,23 @@ const onConnectionOpen = () => {
 }
 
 const onMessageReceived = (event) => {
-    const data = JSON.parse(event.data)
-    console.log(data)
+    event = JSON.parse(event.data)
+    console.log(event.event)
+    
+    switch (event.event) {
+        case 'users':
+                chatUserContainer.innerHTML = ''
+                event.data.forEach(u => {
+                    const userEl = document.createElement('div')
+                    userEl.className = 'chat-user'
+                    userEl.innerHTML = u.name
+                    chatUserContainer.append(userEl)
+                })
+            break;
+    
+        default:
+            break;
+    }
 }
 
 const getQueryParams = () => {
